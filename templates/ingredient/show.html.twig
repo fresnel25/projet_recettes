@@ -1,0 +1,65 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Hello IngredientController!
+{% endblock %}
+
+{% block body %}
+
+	{% if is_granted('IS_AUTHENTICATED_FULLY') %}
+		<div class="mt-4 text-end">
+			<p>Email:
+				{{ app.user.email }}</p>
+			<a href="{{ path('app_logout') }}" class="btn btn-outline-primary btn-sm">
+				Me déconnecter
+			</a>
+		</div>
+	{% endif %}
+
+
+	{% for label, messages in app.flashes %}
+		{% for message in messages %}
+			<div class="alert alert-{{ label }}">
+				{{ message }}
+			</div>
+		{% endfor %}
+	{% endfor %}
+
+
+	<div class="mt-4">
+		<table class="table">
+			<thead class="table-dark">
+				<tr>
+					<td>N°</td>
+					<td>Nom</td>
+					<td>Slug</td>
+					<td>Prix(Euro)</td>
+					<td>Date de création</td>
+					<td>Action</td>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td>{{ ingredient.id }}</td>
+					<td>{{ ingredient.nom }}</td>
+					<td>{{ ingredient.slug }}</td>
+					<td>{{ ingredient.prix }}</td>
+					<td>{{ ingredient.createdAt|date('Y-m-d H:i:s') }}</td>
+					<td>
+						<a href="{{ path('ingredient.edit', {id: ingredient.id}) }}" class="btn btn-outline-warning btn-sm">
+							Modifier
+						</a>
+
+						<form action="{{ path('ingredient.delete', {id: ingredient.id}) }}" method="post" style="display:inline;">
+							<input type="hidden" name="_method" value="DELETE">
+							<button class="btn btn-outline-danger btn-sm" onclick="return confirm('Voulez-vous vraiment supprimer cet ingrédient ?');">
+								Supprimer
+							</button>
+						</form>
+					</td>
+				</tr>
+			</tbody>
+
+		</table>
+
+	</div>
+{% endblock %}

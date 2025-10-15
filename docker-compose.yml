@@ -1,0 +1,45 @@
+version: "3.8"
+
+services:
+  db:
+    image: mysql:8.0
+    container_name: mysql-container
+    restart: always
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes" # root sans mot de passe pour dev
+      MYSQL_DATABASE: recettesDB
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin
+    restart: always
+    environment:
+      PMA_HOST: db
+      PMA_USER: root
+      PMA_PASSWORD: ""
+    ports:
+      - "8082:80"
+    depends_on:
+      - db
+
+  php:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: symfony-app
+    volumes:
+      - .:/var/www/html
+    working_dir: /var/www/html
+    depends_on:
+      - db
+    tty: true
+    command: php -S 0.0.0.0:8000 -t public
+    ports:
+      - "8000:8000" # expose le port pour accéder depuis le navigateur
+
+volumes:
+  db_data:

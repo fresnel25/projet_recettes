@@ -1,0 +1,22 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Lucky LuckyController!{% endblock %}
+
+{% block body %}
+
+<div class="d-flex justify-content-center">
+    <div class="card w-75 shadow">
+        <h1 class="text-center">
+
+         {% if number%2 !=0 %}
+           Tirage au sort  <span class="bg-dark text-light">{{number}}<span>
+         {% else %}
+           Tirage au sort  <span class="bg-danger text-light">{{number}}<span>
+         {% endif %}
+        
+        </h1>
+    </div>
+</div>
+
+
+{% endblock %}

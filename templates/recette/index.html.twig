@@ -1,0 +1,45 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Hello RecetteController!
+{% endblock %}
+
+{% block body %}
+	<div class="bg bg-secondary">
+		<h1 class="text-center text-light">Toutes les Recettes</h1>
+	</div>
+	<div class="d-flex justify-content-center">
+		<div class="card w-100 mt-5">
+		<table class="table">
+			<thead class="table-dark">
+				<tr>
+					<td>N°</td>
+					<td>Nom</td>
+					<td>Prix(Euro)</td>
+					<td>Date de création</td>
+					<td>Ingredients</td>
+				</tr>
+			</thead>
+			<tbody>
+				{% for recette in recettes %}
+					<tr>
+						<td>{{ recette.id }}</td>
+						<td>{{ recette.nom }}</td>
+						<td>{{ recette.prix }}</td>
+						<td>{{ recette.createdAt|date('Y-m-d H:i:s') }}</td>
+						<td>
+							<ul>
+								{% for ing in recette.ingredients %}
+									<li>{{ ing.nom }}</li>
+								{% endfor %}
+							</ul>
+						</td>
+					</tr>
+				{% endfor %}
+
+			</tbody>
+
+		</table>
+
+	</div>
+	</div>
+{% endblock %}
