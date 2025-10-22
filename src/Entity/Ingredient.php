@@ -23,6 +23,7 @@ class Ingredient
 
     #[ORM\Column]
     #[Assert\Range(min: 0, max: 200)]
+    #[Assert\NotBlank(message: 'Le champ du prix est requis.')]
     private ?float $prix = null;
 
     #[ORM\Column]

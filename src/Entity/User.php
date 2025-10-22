@@ -41,6 +41,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 255)]
     private ?string $cp = null;
 
+    #[ORM\Column(type: 'boolean', options: ['default' => false])]
+    private bool $verified = false;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -155,6 +158,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setCp(string $cp): static
     {
         $this->cp = $cp;
+
+        return $this;
+    }
+
+    public function isVerified(): ?bool
+    {
+        return $this->verified;
+    }
+
+    public function setVerified(bool $verified): static
+    {
+        $this->verified = $verified;
 
         return $this;
     }
