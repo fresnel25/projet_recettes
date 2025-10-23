@@ -4,14 +4,18 @@ namespace App\Controller;
 
 use App\Entity\User;
 use App\Form\RegistrationFormType;
+use App\Repository\UserRepository;
 use App\Security\AppAuthenticator;
 use App\Security\EmailVerifier;
+use App\Service\SendMailService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Mailer\MailerInterface;
+use Symfony\Component\Mailer\Messenger\SendEmailMessage;
 use Symfony\Component\Mime\Address;
 use Symfony\Component\Mime\Email;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
@@ -59,11 +63,9 @@ class RegistrationController extends AbstractController
                     ])
             );
 
-            return $userAuthenticator->authenticateUser(
-                $user,
-                $authenticator,
-                $request
-            );
+            $this->addFlash('success', 'Inscription réussie ! Veuillez vérifier votre e-mail pour activer votre compte.');
+
+            return $this->redirectToRoute('app_register');
         }
 
         return $this->render('registration/register.html.twig', [
@@ -72,34 +74,72 @@ class RegistrationController extends AbstractController
     }
 
     #[Route('/verify/email', name: 'app_verify_email')]
-    public function verifyUserEmail(Request $request, TranslatorInterface $translator): Response
+    public function verifyUserEmail(Request $request, EntityManagerInterface $entityManager, TranslatorInterface $translator): Response
     {
-        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
-
-        try {
-            $this->emailVerifier->handleEmailConfirmation($request, $this->getUser());
-        } catch (VerifyEmailExceptionInterface $exception) {
-            $this->addFlash('verify_email_error', $translator->trans($exception->getReason(), [], 'VerifyEmailBundle'));
+        // Récupère l'ID de l'utilisateur depuis le lien
+        $userId = $request->get('id');
+        if (!$userId) {
+            $this->addFlash('verify_email_error', 'Lien invalide ou incomplet.');
             return $this->redirectToRoute('app_register');
         }
 
-        $this->addFlash('success', 'Votre adresse e-mail a été vérifiée avec succès !');
+        // Récupère le bon utilisateur
+        $user = $entityManager->getRepository(User::class)->find($userId);
+        if (!$user) {
+            $this->addFlash('verify_email_error', 'Utilisateur introuvable.');
+            return $this->redirectToRoute('app_register');
+        }
 
-        return $this->redirectToRoute('app_login');
+        // Valide le lien
+        try {
+            $this->emailVerifier->handleEmailConfirmation($request, $user);
+            $this->addFlash('success', 'Votre adresse e-mail a été vérifiée avec succès !');
+
+            return $this->redirectToRoute('all_ingredient');
+        } catch (VerifyEmailExceptionInterface $exception) {
+            $this->addFlash(
+                'verify_email_error',
+                $translator->trans($exception->getReason(), [], 'VerifyEmailBundle')
+            );
+
+            return $this->redirectToRoute('app_register');
+        }
     }
 
-    //test email verification
-    /* #[Route('/test-mail', name: 'app_test_mail')]
-    public function sendTestMail(MailerInterface $mailer): Response
+    #[Route('/test/email', name: 'test_email')]
+    public function test(SendMailService $mailer)
+    {    
+        $prenom = 'Junior';
+        $nom = 'Fresnel';
+        $mailer->send(
+            'no-reply@monsite.net',
+            'destinataire@monsite.net',
+            'Confirme ton Mail',
+            'test',
+            ['prenom' => $prenom, 'nom' => $nom]
+        );
+        $this->addFlash("success", "message envoyer");
+        return $this->redirectToRoute('app_register');
+    }
+
+
+  /*   #[Route('/test/email', name: 'test_email')]
+    public function tests(SendMailService $mailer, UserRepository $userRepository)
     {
-        $email = (new Email())
-            ->from('test@example.com')
-            ->to('user@example.com')
-            ->subject('Test Mailhog avec Symfony 6 🚀')
-            ->text('Ceci est un test d’envoi de mail via Mailhog.');
+        $users = $userRepository->findAll();
 
-        $mailer->send($email);
-
-        return new Response('✅ Email envoyé ! Vérifie Mailhog sur http://localhost:8025');
+        foreach ($users as $user) {
+            if ($user->getEmail()) {
+                $mailer->send(
+                    'no-reply@monsite.net',
+                    $user->getEmail(),
+                    'Titre de mon message',
+                    'test',
+                    ['prenom' => $user->getPrenom(), 'nom' => $user->getNom()]
+                );
+            }
+        }
+        $this->addFlash("success", "message envoyer");
+        return $this->redirectToRoute('app_register');
     } */
 }
