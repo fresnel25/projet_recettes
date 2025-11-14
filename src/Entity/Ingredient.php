@@ -2,6 +2,9 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Doctrine\Orm\Filter\RangeFilter;
+use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
+use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiResource;
 use App\Repository\IngredientRepository;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -10,10 +13,11 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
-#[ApiResource(normalizationContext:[
+#[ApiResource(normalizationContext: [
     'groups' => ['ingredient:read'],
-])]
+], denormalizationContext: ['groups' => ['ingredient:write']])]
 #[ORM\Entity(repositoryClass: IngredientRepository::class)]
+/* #[ApiResource()] */
 class Ingredient
 {
     #[ORM\Id]
@@ -21,13 +25,15 @@ class Ingredient
     #[ORM\Column]
     private ?int $id = null;
 
-    #[Groups(['ingredient:read'])]
+    #[Groups(['ingredient:read', 'ingredient:write'])]
+    #[ApiFilter(SearchFilter::class, strategy: 'partial')]
     #[ORM\Column(length: 50)]
     #[Assert\Length(min: 2, max: 50)]
     #[Assert\NotBlank(message: 'Le champ nom est requis.')]
     private ?string $nom = null;
 
-    #[Groups(['ingredient:read'])]
+    #[ApiFilter(RangeFilter::class)]
+    #[Groups(['ingredient:read', 'ingredient:write'])]
     #[ORM\Column]
     #[Assert\Range(min: 0, max: 200)]
     #[Assert\NotBlank(message: 'Le champ du prix est requis.')]
@@ -48,6 +54,7 @@ class Ingredient
     public function __construct()
     {
         $this->recettes = new ArrayCollection();
+        $this->createdAt = new \DateTimeImmutable();
         $this->updatedAt = new \DateTimeImmutable();
     }
 
