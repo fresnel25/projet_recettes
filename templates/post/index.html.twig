@@ -1,0 +1,57 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Hello PostController!
+{% endblock %}
+
+{% block body %}
+	<div class="mt-4">
+		<table class="table">
+			<thead class="table-dark">
+				<tr>
+					<td>N°</td>
+					<td>Nom</td>
+					<td>Slug</td>
+					<td>Prix(Euro)</td>
+					<td>Description</td>
+                    <td>Categorie</td>
+					<td>Image</td>
+					<td>Date de création</td>
+				</tr>
+			</thead>
+			<tbody>
+				{% for produit in produits %}
+					<tr>
+						<td>{{ produit.id }}</td>
+						<td>{{ produit.title }}</td>
+						<td>{{ produit.slug }}</td>
+						<td>{{ produit.price }}</td>
+						<td>{{ produit.description }}</td>
+						<td>{{ produit.category.name }}</td>
+						<td>
+							{% if produit.images is iterable and produit.images|length > 0 %}
+								<img src="{{ produit.images[0] }}" width="60">
+							{% else %}
+								–
+							{% endif %}
+						</td>
+						<td>{{ produit.creationAt|date('Y-m-d H:i:s') }}</td>
+						{# <td>
+							<a href="{{ path('produit.edit', {id: produit.id}) }}" class="btn btn-outline-warning btn-sm">
+								Modifier
+							</a>
+
+							<form action="{{ path('produit.delete', {id: produit.id}) }}" method="post" style="display:inline;">
+								<input type="hidden" name="_method" value="DELETE">
+								<button class="btn btn-outline-danger btn-sm" onclick="return confirm('Voulez-vous vraiment supprimer cet ingrédient ?');">
+									Supprimer
+								</button>
+							</form>
+						</td> #}
+					</tr>
+				{% endfor %}
+			</tbody>
+
+		</table>
+
+	</div>
+{% endblock %}

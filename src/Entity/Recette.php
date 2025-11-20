@@ -3,13 +3,17 @@
 namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Put;
 use App\Repository\RecetteRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
-#[ApiResource()]
+#[ApiResource(
+    security: "is_granted('ROLE_USER')"
+)]
 #[ORM\Entity(repositoryClass: RecetteRepository::class)]
 #[ORM\HasLifecycleCallbacks]
 class Recette
@@ -46,7 +50,7 @@ class Recette
     public function __construct()
     {
         $this->ingredients = new ArrayCollection();
-       // $this->createdAt = new \DateTimeImmutable();
+        // $this->createdAt = new \DateTimeImmutable();
     }
 
     public function getId(): ?int
