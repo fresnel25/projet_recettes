@@ -5,16 +5,52 @@
 
 {% block body %}
 
-
 	<div class="d-flex justify-content-center">
 		<div class="card w-50 mt-5">
 			<div class="card-header">
 				<h2 class="text-center">Formulaire Recette</h2>
 			</div>
 			<div class="w-75 mt-5 card-body">
-				{{ form(formulaire) }}
+				{{ form_start(formulaire) }}
+
+				{{ form_row(formulaire.nom) }}
+				{{ form_row(formulaire.description) }}
+				{{ form_row(formulaire.temps) }}
+				{{ form_row(formulaire.prix) }}
+				{{ form_row(formulaire.difficulte) }}
+				{{ form_row(formulaire.ingredients) }}
+
+				<h4>Tags</h4>
+				<div id="tags" class="mb-3">
+					{% for tagForm in formulaire.tags %}
+						<div class="tag-form mb-2">
+							{{ form_row(tagForm.nom) }}
+						</div>
+					{% endfor %}
+				</div>
+
+				<button type="button" id="add-tag" class="btn btn-secondary mb-3">Ajouter un tag</button>
+
+				{{ form_row(formulaire.submit) }}
+				{{ form_end(formulaire) }}
 			</div>
 		</div>
 	</div>
+
+	<script>
+		const addTagBtn = document.getElementById('add-tag');
+const tagsContainer = document.getElementById('tags');
+let index = {{ formulaire.tags|length }};
+
+addTagBtn.addEventListener('click', () => {
+const prototype = '{{ form_widget(formulaire.tags.vars.prototype)|e('js') }}';
+const newForm = prototype.replace(/__name__/g, index);
+const div = document.createElement('div');
+div.classList.add('tag-form', 'mb-2');
+div.innerHTML = newForm;
+tagsContainer.appendChild(div);
+index++;
+});
+	</script>
 
 {% endblock %}

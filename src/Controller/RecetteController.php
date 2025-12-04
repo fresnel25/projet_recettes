@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Recette;
+use App\Entity\Tag;
 use App\Form\RecetteFormType;
 use App\Repository\RecetteRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -54,21 +55,36 @@ class RecetteController extends AbstractController
     {
         $recette = new Recette();
 
-        $creation_formulaire = $this->createForm(RecetteFormType::class, $recette,['submit_label' => 'Créer la recette']);
-        $creation_formulaire->handleRequest($request);
+        // On ajoute un tag vide par défaut pour afficher un champ dans le formulaire
+        if ($recette->getTags()->isEmpty()) {
+            $recette->getTags()->add(new Tag());
+        }
 
-        if ($creation_formulaire->isSubmitted() && $creation_formulaire->isValid()) {
+        $form = $this->createForm(RecetteFormType::class, $recette, [
+            'submit_label' => 'Créer la recette'
+        ]);
+
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
             $recette->setCreatedAt(new \DateTimeImmutable());
             $recette->setUpdatedAt(new \DateTimeImmutable());
+
+            // On lie chaque tag à la recette
+            foreach ($recette->getTags() as $tag) {
+                $tag->setRecette($recette);
+                $entity_manager->persist($tag);
+            }
 
             $entity_manager->persist($recette);
             $entity_manager->flush();
 
-            $this->addFlash('success', 'Votre recette a bien été créé avec succès !');
+            $this->addFlash('success', 'Votre recette a bien été créée avec succès !');
             return $this->redirectToRoute('all_recette');
         }
+
         return $this->render('recette/create.html.twig', [
-            'formulaire' => $creation_formulaire->createView(),
+            'formulaire' => $form->createView(),
         ]);
     }
 }
