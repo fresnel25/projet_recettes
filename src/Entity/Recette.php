@@ -172,4 +172,9 @@ class Recette
 
         return $this;
     }
+
+    public function __tostring()
+    {
+        return $this->nom;
+    }
 }

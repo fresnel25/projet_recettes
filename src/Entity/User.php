@@ -192,7 +192,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->recettes;
     }
 
-    public function addRecette(Recette $recette): static
+  /*   public function addRecette(Recette $recette): static
     {
         if (!$this->recettes->contains($recette)) {
             $this->recettes->add($recette);
@@ -200,9 +200,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         }
 
         return $this;
-    }
+    } */
 
-    public function removeRecette(Recette $recette): static
+ /*    public function removeRecette(Recette $recette): static
     {
         if ($this->recettes->removeElement($recette)) {
             // set the owning side to null (unless already changed)
@@ -212,5 +212,5 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         }
 
         return $this;
-    }
+    } */
 }

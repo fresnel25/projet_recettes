@@ -198,7 +198,7 @@ class IngredientController extends AbstractController
 
     // ########################################################  Update  ##################################################
 
-    #[Route('/admin/ingredient/edit/{id}', name: 'ingredient.edit', methods: ['GET', 'PUT'])]
+    #[Route('/administrateur/ingredient/edit/{id}', name: 'ingredient.edit', methods: ['GET', 'PUT'])]
     public function edit(int $id, Request $request, EntityManagerInterface $entityManager, IngredientRepository $ingredientRepo): Response
     {
 
@@ -234,7 +234,7 @@ class IngredientController extends AbstractController
     }
 
     // ########################################################  Delete  ##################################################
-    #[Route('/admin/ingredient/{id}', name: 'ingredient.delete', methods: 'DELETE')]
+    #[Route('/administrateur/ingredient/{id}', name: 'ingredient.delete', methods: 'DELETE')]
     public function delete(int $id, IngredientRepository $ingredientRepo, EntityManagerInterface $entityManager): Response
     {
         $ingredient = $ingredientRepo->find($id);
